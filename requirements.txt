@@ -1,0 +1,8 @@
+Django==3.1.12
+gunicorn
+whitenoise
+pymongo==4.16.0
+dnspython
+python-decouple==3.8
+python-dotenv==1.2.2
+opencv_python==4.13.0.92
