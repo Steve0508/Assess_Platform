@@ -6,7 +6,7 @@ import time
 import json
 
 # import dlib
-import numpy as np
+
 from dotenv import load_dotenv
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
