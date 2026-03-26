@@ -150,19 +150,27 @@ APPEND_SLASH = False
 
 
 # DATABASE (MongoDB using Djongo)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'djongo',
+#         'NAME': config('DB_NAME'),
+#         'CLIENT': {
+#             'host': config('MONGO_URI'),
+#             'username': config('DB_USER'),
+#             'password': config('DB_PASSWORD'),
+#             'authSource': config('DB_AUTH_SOURCE', default='admin'),
+#         }
+#     }
+# }
+
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
-        'NAME': config('DB_NAME'),
-        'CLIENT': {
-            'host': config('MONGO_URI'),
-            'username': config('DB_USER'),
-            'password': config('DB_PASSWORD'),
-            'authSource': config('DB_AUTH_SOURCE', default='admin'),
-        }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # IMPORTANT FIX FOR DJONGO SESSION ERROR
 # SESSION_ENGINE = 'django.contrib.sessions.backends.db'
