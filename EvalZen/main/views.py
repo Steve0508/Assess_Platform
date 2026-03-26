@@ -4,7 +4,7 @@ import random
 import smtplib
 import time
 import json
-import cv2
+
 # import dlib
 import numpy as np
 from dotenv import load_dotenv
