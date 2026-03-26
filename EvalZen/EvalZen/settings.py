@@ -217,20 +217,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 OPENAI_API_KEY = config('OPENAI_API_KEY')
 
 
-# EMAIL SETTINGS (GMAIL SMTP)
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-
-# EMAIL_HOST_USER = 'evalzen24@gmail.com'
-# EMAIL_HOST_PASSWORD = 'fxuw jnor jrvj hgnw'
+SECRET_KEY = os.getenv("SECRET_KEY")
+DEBUG = os.getenv("DEBUG") == "True"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+MONGO_URI = os.getenv("MONGO_URI")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_AUTH_SOURCE = os.getenv("DB_AUTH_SOURCE")
