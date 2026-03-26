@@ -36,6 +36,9 @@ admin_collection = admin_db['Admin Details']
 feedback_db = client['Feedback']
 collection = feedback_db['Details']
 
+
+
+
 class MongoDBConnection:
     @staticmethod
     def check_connection():
@@ -176,6 +179,8 @@ class QuestionDB:
             return False
 
         return assessment
+    
+
 
 
 class Admin:
@@ -189,6 +194,13 @@ class FeedbackModel:
         collection.insert_one(data)
 
 class Candidate:
+
+    @staticmethod
+    def update_profile_image(email, image_id):
+        users_collection.update_one(
+        {'email': email},
+        {'$set': {'profile_image_id': image_id}})
+
     @staticmethod
     def add_candidate(candidate_data):
         return users_collection.insert_one(candidate_data)

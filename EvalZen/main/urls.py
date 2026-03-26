@@ -2,7 +2,7 @@ from django.urls import include, path
 from .views import (
     Admin_invite, delete_assessment, candidate_access, candidate_profile, invitation, 
     admin_logout, get_dashboard_data, delete_user, change_account_status, edit_user,
-    instructor_invitation, proctoring_view, schedule_assessment, send_otp, update_password,
+    instructor_invitation, schedule_assessment, send_otp, update_password, upload_profile_image,
     verify_otp, candidate_coding_test, features, forgotpassword, index, instructor_logout,
     instructor_create_assessment, instructor_dashboard, candidate_logout, instructor_login,
     instructor_registration, candidate_login, candidate_registration, candidate_dashboard,
@@ -62,13 +62,14 @@ urlpatterns = [
     path('submit_coding_test/', submit_coding_test, name='submit_coding_test'),
 
         path('contact/', contact_us, name='contact_us'),
-        path('proctoring/', proctoring_view, name='proctoring'),
+        # path('proctoring/', proctoring_view, name='proctoring'),
+        path('upload-profile-image/', upload_profile_image, name='upload_profile_image'),
         
     ])),
 
     # Admin URLs
     path('admin/', include([
-        path('dashboard/', admindashboard, name='admindashboard'),
+        path('dashboard/', admindashboard, name='admin_dashboard'),
         path('assessment/', assessment, name='adminassessment'),
         path('change_status/', change_account_status, name="change_status"),
         path('manualquestionupload/', manualquestionupload, name='manualquestionupload'),

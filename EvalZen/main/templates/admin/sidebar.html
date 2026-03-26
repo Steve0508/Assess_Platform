@@ -9,7 +9,7 @@
     </div>
     <ul class="nav flex-column mt-4 w-100">
         <li class="nav-item">
-            <a href="{% url 'admindashboard' %}" class="nav-link {% if request.path == '/admin/dashboard/' %}active{% endif %}">Dashboard</a>
+            <a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.path == '/admin/dashboard/' %}active{% endif %}">Dashboard</a>
         </li>
         <li class="nav-item">
             <a href="{% url 'usermanagement' %}" class="nav-link {% if request.path == '/admin/usermanagement/' %}active{% endif %}">Users</a>

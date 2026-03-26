@@ -78,6 +78,10 @@
             cursor: pointer;
             border: solid 1px #BA68C8;
         }
+        .profile-image {
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -89,91 +93,120 @@
         <div class="flex-grow-1">
             <div class="profile-container">
                 <div class="container rounded bg-white mt-5 mb-5">
-                    <div class="row">
-                        <div class="col-md-3 border-right">
-                            <div class="d-flex flex-column align-items-center text-center p-3 py-5">
-                                {% if profile.profile_image_id %}
-                                    <img class=" mt-5" width="150px" src="{{ profile.profile_image }}" alt="Profile Image">
-                                {% else %}
-                                    <img class="rounded-circle mt-5" width="150px" src="https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg" alt="Default Profile Image">
-                                {% endif %}
-                                <span class="font-weight-bold">{{ profile.first_name }} {{ profile.last_name }}</span>
-                                <span></span>
+                    <div class="profile-image">
+                        {% if profile.profile_image %}
+                            <img class="rounded-circle" width="150px" height="150px" src="{{ profile.profile_image }}" alt="Profile Image">
+                        {% else %}
+                            <img class="rounded-circle" width="150px" src="https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg" alt="Default Profile Image">
+                        {% endif %}
+                        <form action="{% url 'upload_profile_image' %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mt-3">
+                                <input type="hidden" name="email" id="email" value="{{ profile.email }}">
+                                <input type="file" name="profile_image" accept="image/*" required>
+                                <button type="submit" class="btn btn-primary mt-2">Change Profile Photo</button>
                             </div>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="p-3 py-5">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h4 class="text-right">Profile Settings</h4>
+                        </form>
+                    </div>
+                    
+                    {% if messages %}
+                    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="messageModalLabel">Alert</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <div class="row mt-2">
-                                    <div class="col-md-6">
-                                        <label class="labels">First Name</label>
-                                        <input type="text" class="form-control" placeholder="First Name" value="{{ profile.first_name }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="labels">Last Name</label>
-                                        <input type="text" class="form-control" placeholder="Last Name" value="{{ profile.last_name }}">
-                                    </div>
+                                <div class="modal-body">
+                                    {% for message in messages %}
+                                    <p>{{ message }}</p>
+                                    {% endfor %}
                                 </div>
-                                <div class="row mt-3">
-                                    <div class="col-md-6">
-                                        <label class="labels">Date of Birth</label>
-                                        <input type="date" class="form-control" value="{{ profile.dob }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="labels">Gender</label>
-                                        <input type="text" class="form-control" placeholder="Gender" value="{{ profile.gender }}">
-                                    </div>
-                                </div>
-                                <div class="row mt-3">
-                                    <div class="col-md-6">
-                                        <label class="labels">Mobile Number</label>
-                                        <input type="text" class="form-control" placeholder="Mobile Number" value="{{ profile.mobile }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="labels">Email</label>
-                                        <input type="email" class="form-control" placeholder="Email" value="{{ profile.email }}">
-                                    </div>
-                                </div>
-                                <div class="row mt-3">
-                                    <div class="col-md-12">
-                                        <label class="labels">Address</label>
-                                        <input type="text" class="form-control" placeholder="Address" value="{{ profile.address }}">
-                                    </div>
-                                    <div class="col-md-6 mt-3">
-                                        <label class="labels">State</label>
-                                        <input type="text" class="form-control" placeholder="State" value="{{ profile.state }}">
-                                    </div>
-                                    <div class="col-md-6 mt-3">
-                                        <label class="labels">Country</label>
-                                        <input type="text" class="form-control" placeholder="Country" value="{{ profile.country }}">
-                                    </div>
-                                </div>
-                                <div class="row mt-3">
-                                    <div class="col-md-6">
-                                        <label class="labels">Pincode</label>
-                                        <input type="text" class="form-control" placeholder="Pincode" value="{{ profile.pincode }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="labels">Qualification</label>
-                                        <input type="text" class="form-control" placeholder="Qualification" value="{{ profile.qualification }}">
-                                    </div>
-                                </div>
-                                <div class="row mt-3">
-                                    <div class="col-md-12">
-                                        <label class="labels">Institution</label>
-                                        <input type="text" class="form-control" placeholder="Institution" value="{{ profile.institution }}">
-                                    </div>
-                                </div>
-                                <div class="mt-5 text-center">
-                                    <button class="btn btn-primary profile-button" type="button">Save Profile</button>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    {% endif %}
+
+                    <div class="text-center mt-3">
+                       <h3><strong class="font-weight-bold">{{ profile.first_name }} {{ profile.last_name }}</strong></h3> 
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="text-right">Profile Settings</h4>
+                        <button type="button" class="btn btn-secondary" id="editProfileButton">Edit Profile</button>
+                    </div>
+                    <hr>
+                    
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <label class="labels">First Name</label>
+                                <p>{{ profile.first_name }}</p>
+                                                        </div>
+                            <div class="col-md-6">
+                                <label class="labels">Last Name</label>
+                                <p>{{ profile.last_name }}</p>
+
+                            </div>
+                        </div>
+ 
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label class="labels">Date of Birth</label>
+                                <p>{{ profile.dob }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="labels">Gender</label>
+                                <p>{{ profile.gender }}</p>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label class="labels">Mobile Number</label>
+                                <p>{{ profile.mobile }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="labels">Email</label>
+                                <p>{{ profile.email }}</p>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <label class="labels">Address</label>
+                                <p>{{ profile.address }}</p>
+                            </div>
+                            <div class="col-md-6 mt-3">
+                                <label class="labels">State</label>
+                                <p>{{ profile.state }}</p>
+                            </div>
+                            <div class="col-md-6 mt-3">
+                                <label class="labels">Country</label>
+                                <p>{{ profile.country }}</p>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label class="labels">Pincode</label>
+                                <p>{{ profile.pincode }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="labels">Qualification</label>
+                                <p>{{ profile.qualification }}</p>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <label class="labels">Institution</label>
+                                <p>{{ profile.institution }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-5 text-center">
+                            
+                        </div>
+                    </div>
                 </div>
-                
             </div>
         </div>
     </div>

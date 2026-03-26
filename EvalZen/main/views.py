@@ -5,7 +5,7 @@ import smtplib
 import time
 import json
 import cv2
-import dlib
+# import dlib
 import numpy as np
 from dotenv import load_dotenv
 from django.shortcuts import render, redirect
@@ -15,14 +15,14 @@ from django.contrib.auth import logout
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.http import require_GET
 from urllib.parse import unquote
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-from reportlab.platypus import Table, TableStyle
-from reportlab.pdfgen import canvas
-from PyPDF2 import PdfReader, PdfWriter
+# from reportlab.lib.pagesizes import letter
+# from reportlab.lib import colors
+# from reportlab.platypus import Table, TableStyle
+# from reportlab.pdfgen import canvas
+# from PyPDF2 import PdfReader, PdfWriter
 from django.conf import settings
-from reportlab.lib.units import inch
-from reportlab.lib.colors import HexColor
+# from reportlab.lib.units import inch
+# from reportlab.lib.colors import HexColor
 
 from .models import Admin, Candidate, Instructor, MongoDBConnection, QuestionDB, FeedbackModel
 from .forms import SignupForm
@@ -56,38 +56,201 @@ def forgotpassword(request):
 def contact_us(request):
     return render(request, 'main/Main_contact_us.html')
 
+
+# def send_otp(request):
+#     if request.method == "POST":
+#         data = json.loads(request.body)
+#         email = data['email']
+#         role = data['role']
+#         otp = random.randint(100000, 999999)
+#         otp_storage[email] = (otp, time.time())
+#         try:
+#             server = smtplib.SMTP('smtp.gmail.com', 587)
+#             server.starttls()
+#             server.login(host_email, email_password)
+#             message = f'Subject: Your OTP\n\nYour OTP is {otp}.'
+#             server.sendmail(host_email, email, message)
+#             server.quit()
+#             return JsonResponse({'message': 'OTP sent'}, status=200)
+#         except Exception as e:
+#             return JsonResponse({'error': str(e)}, status=500)
+#     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+# def verify_otp(request):
+#     if request.method == "POST":
+#         data = json.loads(request.body)
+#         email = data['email']
+#         entered_otp = data['otp']
+#         if email in otp_storage:
+#             stored_otp, timestamp = otp_storage[email]
+#             if stored_otp == int(entered_otp) and (time.time() - timestamp) <= 30:
+#                 del otp_storage[email]
+#                 return JsonResponse({'message': 'OTP verified'}, status=200)
+#             return JsonResponse({'error': 'Invalid or expired OTP'}, status=400)
+#         return JsonResponse({'error': 'Email not found'}, status=400)
+#     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+import json
+import random
+import time
+import smtplib
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+# otp_storage = {}
+
+# @csrf_exempt
+# def send_otp(request):
+#     if request.method == "POST":
+#         try:
+#             data = json.loads(request.body)
+
+#             email = data.get('email')
+#             role = data.get('role')
+
+#             if not email:
+#                 return JsonResponse({'error': 'Email is required'}, status=400)
+
+#             otp = random.randint(100000, 999999)
+
+#             otp_storage[email] = (otp, time.time())
+
+#             server = smtplib.SMTP('smtp.gmail.com', 587)
+#             server.starttls()
+#             server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+
+#             subject = "EvalZen OTP Verification"
+#             body = f"Your OTP is {otp}. It is valid for 5 minutes."
+#             message = f"Subject: {subject}\n\n{body}"
+
+#             server.sendmail(settings.EMAIL_HOST_USER, email, message)
+#             server.quit()
+
+#             return JsonResponse({'message': 'OTP sent successfully'})
+
+#         except Exception as e:
+#             return JsonResponse({'error': str(e)}, status=500)
+
+#     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+
+
+import json
+import random
+import time
+import smtplib
+import traceback
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
+otp_storage = {}
+
+@csrf_exempt
 def send_otp(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        email = data['email']
-        role = data['role']
-        otp = random.randint(100000, 999999)
-        otp_storage[email] = (otp, time.time())
         try:
+            print("Step 1: Request received")
+
+            data = json.loads(request.body)
+            print("Step 2: Data parsed ->", data)
+
+            email = data.get('email')
+            role = data.get('role')
+
+            if not email:
+                return JsonResponse({'error': 'Email is required'}, status=400)
+
+            # Generate OTP
+            otp = random.randint(100000, 999999)
+            print("Step 3: OTP generated ->", otp)
+
+            # Store OTP
+            otp_storage[email] = (otp, time.time())
+
+            print("Step 4: Connecting to SMTP...")
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.starttls()
-            server.login(host_email, email_password)
-            message = f'Subject: Your OTP\n\nYour OTP is {otp}.'
-            server.sendmail(host_email, email, message)
-            server.quit()
-            return JsonResponse({'message': 'OTP sent'}, status=200)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-    return JsonResponse({'error': 'Invalid request'}, status=400)
 
+            print("Step 5: Logging in...")
+            server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+
+            subject = "EvalZen OTP Verification"
+            body = f"Your OTP is {otp}. It is valid for 5 minutes."
+            message = f"Subject: {subject}\n\n{body}"
+
+            print("Step 6: Sending email...")
+            server.sendmail(settings.EMAIL_HOST_USER, email, message)
+
+            server.quit()
+            print("Step 7: Email sent successfully")
+
+            return JsonResponse({'message': 'OTP sent successfully'})
+
+        except Exception as e:
+            print("ERROR:", e)
+            traceback.print_exc()
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
 def verify_otp(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        email = data['email']
-        entered_otp = data['otp']
-        if email in otp_storage:
-            stored_otp, timestamp = otp_storage[email]
-            if stored_otp == int(entered_otp) and (time.time() - timestamp) <= 30:
-                del otp_storage[email]
-                return JsonResponse({'message': 'OTP verified'}, status=200)
-            return JsonResponse({'error': 'Invalid or expired OTP'}, status=400)
-        return JsonResponse({'error': 'Email not found'}, status=400)
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+        try:
+            data = json.loads(request.body)
+
+            email = data.get('email')
+            entered_otp = data.get('otp')
+
+            if not email or not entered_otp:
+                return JsonResponse({'error': 'Email and OTP are required'}, status=400)
+
+            if email in otp_storage:
+                stored_otp, timestamp = otp_storage[email]
+
+                # OTP expiry (5 minutes)
+                if time.time() - timestamp > 300:
+                    del otp_storage[email]
+                    return JsonResponse({'error': 'OTP expired'}, status=400)
+
+                if int(entered_otp) == stored_otp:
+                    del otp_storage[email]
+                    return JsonResponse({'message': 'OTP verified successfully'}, status=200)
+                else:
+                    return JsonResponse({'error': 'Invalid OTP'}, status=400)
+
+            return JsonResponse({'error': 'OTP not found for this email'}, status=400)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+def upload_profile_image(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        profile_image = request.FILES.get('profile_image')
+
+        # Store the uploaded image in MongoDB
+        image_id = Candidate.store_image(profile_image)
+
+        if image_id:
+            # Update the profile image reference in the database
+            Candidate.update_profile_image(email, image_id)
+            messages.success(request, 'Profile image updated successfully.')
+        else:
+            messages.error(request, 'Failed to update profile image.')
+
+        return redirect('candidate_profile')  # Replace with your profile page URL name
+
+    return render(request, 'candidate_profile.html')
+
 
 def update_password(request):
     if request.method == 'POST':
@@ -524,11 +687,12 @@ def Admin_invite(request):
     candidates = Candidate.get_all_candidates()
     return render(request, 'admin/Admin_invite.html', {'assessments': assessments, 'candidates': candidates})
 
-def aiproctor(request):
-    if 'admin_id' not in request.session:
-        messages.warning(request, 'Please log in to continue.')
-        return redirect('admin_login')
-    return render(request, 'admin/Admin_aiproctor.html')
+# def aiproctor(request):
+
+#     if 'admin_id' not in request.session:
+#         messages.warning(request, 'Please log in to continue.')
+#         return redirect('admin_login')
+#     return render(request, 'admin/Admin_aiproctor.html')
 
 def assessment(request):
     if 'admin_id' not in request.session:
@@ -626,12 +790,14 @@ def admin_login(request):
         admin_credentials = Admin.get_admin_credentials(admin_id)
         if admin_credentials and admin_credentials['password'] == password:
             request.session['admin_id'] = admin_id
-            return redirect('admindashboard')
+            return redirect('admin_dashboard')
         else:
             messages.error(request, 'Invalid Admin ID or Password')
             return render(request, 'admin/Admin_login.html')
     else:
         return render(request, 'admin/Admin_login.html')
+
+
 
 def admin_logout(request):
     logout(request)
@@ -639,113 +805,113 @@ def admin_logout(request):
 
 
 
-detector = dlib.get_frontal_face_detector()
+# # detector = dlib.get_frontal_face_detector()
 
-def stream_camera(request):
-    if request.method == 'GET':
-        return render(request, 'candidate/candidate_assesment.html')
+# def stream_camera(request):
+#     if request.method == 'GET':
+#         return render(request, 'candidate/candidate_assesment.html')
 
-def proctoring_view(request):
-    if request.method == 'POST':
-        frame_file = request.FILES.get('frame')
-        if frame_file:
-            nparr = np.frombuffer(frame_file.read(), np.uint8)
-            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            rects = detector(gray, 0)
-            num_faces_detected = len(rects)
-            if num_faces_detected > 1:
-                screenshot_path = os.path.join('static', 'image', f'screenshot_{int(time.time())}.jpg')
-                cv2.imwrite(screenshot_path, frame)
-                return JsonResponse({"error": "More than one face detected.", "screenshot": screenshot_path})
-            return JsonResponse({"message": "Frame received", "num_faces": num_faces_detected})
-    return JsonResponse({"message": "Invalid request."})
-def create_candidate_pdf(email):
-    print("Creating PDF document...")
+# def proctoring_view(request):
+#     if request.method == 'POST':
+#         frame_file = request.FILES.get('frame')
+#         if frame_file:
+#             nparr = np.frombuffer(frame_file.read(), np.uint8)
+#             frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+#             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+#             rects = detector(gray, 0)
+#             num_faces_detected = len(rects)
+#             if num_faces_detected > 1:
+#                 screenshot_path = os.path.join('static', 'image', f'screenshot_{int(time.time())}.jpg')
+#                 cv2.imwrite(screenshot_path, frame)
+#                 return JsonResponse({"error": "More than one face detected.", "screenshot": screenshot_path})
+#             return JsonResponse({"message": "Frame received", "num_faces": num_faces_detected})
+#     return JsonResponse({"message": "Invalid request."})
+# def create_candidate_pdf(email):
+#     print("Creating PDF document...")
 
-    data = Candidate.find_candidate_by_email(email)
-    if not data:
-        print(f"No candidate found for email: {email}")
-        return
+#     data = Candidate.find_candidate_by_email(email)
+#     if not data:
+#         print(f"No candidate found for email: {email}")
+#         return
 
-    template_path = os.path.join(getattr(settings, 'STATICFILES_DIRS', [''])[0], 'file', 'CandidateDetailTemplate.pdf')
-    if not os.path.exists(template_path):
-        print("Template path does not exist:", template_path)
-        return
+#     template_path = os.path.join(getattr(settings, 'STATICFILES_DIRS', [''])[0], 'file', 'CandidateDetailTemplate.pdf')
+#     if not os.path.exists(template_path):
+#         print("Template path does not exist:", template_path)
+#         return
 
-    temp_pdf_path = email + "_temp.pdf"
-    c = canvas.Canvas(temp_pdf_path, pagesize=letter)
+#     temp_pdf_path = email + "_temp.pdf"
+#     c = canvas.Canvas(temp_pdf_path, pagesize=letter)
 
-    line_y_position = letter[1] - 200
-    margin_below_line = 5.25 * 28.35
+#     line_y_position = letter[1] - 200
+#     margin_below_line = 5.25 * 28.35
 
-    profile_image_path = Candidate.get_image(data.get('profile_image_id'))
-    if profile_image_path:
-        image_x_position = letter[0] - 18 * 28.35  # Move it to the left (3 cm from the right edge)
-        image_y_position = line_y_position + 10
-        image_width = 2.5 * 28.35
-        image_height = 2.5 * 28.35
-        c.drawImage(profile_image_path, image_x_position, image_y_position, width=image_width, height=image_height)
-    else:
-        print("Profile image not found for ID:", data.get('profile_image_id'))
+#     profile_image_path = Candidate.get_image(data.get('profile_image_id'))
+#     if profile_image_path:
+#         image_x_position = letter[0] - 18 * 28.35  # Move it to the left (3 cm from the right edge)
+#         image_y_position = line_y_position + 10
+#         image_width = 2.5 * 28.35
+#         image_height = 2.5 * 28.35
+#         c.drawImage(profile_image_path, image_x_position, image_y_position, width=image_width, height=image_height)
+#     else:
+#         print("Profile image not found for ID:", data.get('profile_image_id'))
 
-    print("Preparing candidate details...")
-    details = [
-        ['Field', 'Value'],
-        ['First Name', data.get('first_name', '')],
-        ['Last Name', data.get('last_name', '')],
-        ['Dob', data.get('dob', '')],
-        ['Gender', data.get('gender', '')],
-        ['Mobile', data.get('mobile', '')],
-        ['Email', data.get('email', '')],
-        ['Address', data.get('address', '')],
-        ['State', data.get('state', '')],
-        ['Country', data.get('country', '')],
-        ['Pincode', data.get('pincode', '')],
-        ['Qualification', data.get('qualification', '')],
-        ['Institution', data.get('institution', '')],
-        ['Status', data.get('status', '')],
-        ['Profile Image Id', str(data.get('profile_image_id', ''))],
-    ]
+#     print("Preparing candidate details...")
+#     details = [
+#         ['Field', 'Value'],
+#         ['First Name', data.get('first_name', '')],
+#         ['Last Name', data.get('last_name', '')],
+#         ['Dob', data.get('dob', '')],
+#         ['Gender', data.get('gender', '')],
+#         ['Mobile', data.get('mobile', '')],
+#         ['Email', data.get('email', '')],
+#         ['Address', data.get('address', '')],
+#         ['State', data.get('state', '')],
+#         ['Country', data.get('country', '')],
+#         ['Pincode', data.get('pincode', '')],
+#         ['Qualification', data.get('qualification', '')],
+#         ['Institution', data.get('institution', '')],
+#         ['Status', data.get('status', '')],
+#         ['Profile Image Id', str(data.get('profile_image_id', ''))],
+#     ]
 
-    print("Creating table...")
-    table = Table(details)
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), HexColor("#2173D8")),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ]))
-    print("Table created.")
+#     print("Creating table...")
+#     table = Table(details)
+#     table.setStyle(TableStyle([
+#         ('BACKGROUND', (0, 0), (-1, 0), HexColor("#2173D8")),
+#         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+#         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+#         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+#         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+#         ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+#         ('GRID', (0, 0), (-1, -1), 1, colors.black),
+#     ]))
+#     print("Table created.")
 
-    table_x_position = 3 * 28.35
-    table_y_position = line_y_position - margin_below_line - 200
-    table.wrapOn(c, letter[0], letter[1])
-    table.drawOn(c, table_x_position, table_y_position)
+#     table_x_position = 3 * 28.35
+#     table_y_position = line_y_position - margin_below_line - 200
+#     table.wrapOn(c, letter[0], letter[1])
+#     table.drawOn(c, table_x_position, table_y_position)
 
-    c.save()
+#     c.save()
 
-    print("Merging with the letterhead template...")
-    existing_pdf = PdfReader(template_path)
-    temp_pdf = PdfReader(temp_pdf_path)
-    output = PdfWriter()
+#     print("Merging with the letterhead template...")
+#     existing_pdf = PdfReader(template_path)
+#     temp_pdf = PdfReader(temp_pdf_path)
+#     output = PdfWriter()
 
-    existing_page = existing_pdf.pages[0]
-    temp_page = temp_pdf.pages[0]
-    existing_page.merge_page(temp_page)
+#     existing_page = existing_pdf.pages[0]
+#     temp_page = temp_pdf.pages[0]
+#     existing_page.merge_page(temp_page)
 
-    output.add_page(existing_page)
+#     output.add_page(existing_page)
 
-    final_pdf_path = email + ".pdf"
-    with open(final_pdf_path, "wb") as output_stream:
-        output.write(output_stream)
+#     final_pdf_path = email + ".pdf"
+#     with open(final_pdf_path, "wb") as output_stream:
+#         output.write(output_stream)
 
-    os.remove(temp_pdf_path)
+#     os.remove(temp_pdf_path)
 
-    print("PDF saved successfully:", final_pdf_path)
+#     print("PDF saved successfully:", final_pdf_path)
 
 
-create_candidate_pdf("balachandarsanthoshkumar111@gmail.com")
+# create_candidate_pdf("balachandarsanthoshkumar111@gmail.com")
