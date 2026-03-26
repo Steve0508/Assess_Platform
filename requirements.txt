@@ -1,29 +1,11 @@
-# Django for Python 3.14 compatibility
-Django==4.2.13
-
-# Djongo + pymongo for MongoDB
-djongo==1.3.7
+Django==3.2.20 djongo==1.3.7
 pymongo==3.11.4
-
-# Web server for deployment
 gunicorn==25.2.0
-
-# Environment variable handling
 python-dotenv==1.1.0
 python-decouple==3.8
-
-# OpenAI API
 openai==0.28.0
-
-# HTTP requests
 requests==2.32.3
-
-# Static files management
 whitenoise==6.5.0
-
-# Parsing & scraping
 beautifulsoup4==4.14.3
 opencv-python==4.13.0.92
-
-# Ensure distutils support for Python 3.14
-setuptools==67.8.0
+setuptools==67.8.0 
