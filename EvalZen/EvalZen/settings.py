@@ -95,9 +95,8 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = [
-    'assess-platform.onrender.com',
-]
+ALLOWED_HOSTS = ['assess-platform.onrender.com',]
+# 'assess-platform.onrender.com',
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # APPLICATIONS
