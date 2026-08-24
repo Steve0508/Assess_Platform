@@ -137,7 +137,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 
-import json
 import random
 import time
 import smtplib
