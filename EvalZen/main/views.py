@@ -90,7 +90,6 @@ def contact_us(request):
 #         return JsonResponse({'error': 'Email not found'}, status=400)
 #     return JsonResponse({'error': 'Invalid request'}, status=400)
 
-import json
 import random
 import time
 import smtplib
